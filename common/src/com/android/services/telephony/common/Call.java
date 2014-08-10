@@ -167,6 +167,9 @@ public final class Call implements Parcelable {
     // show pay phone info
     public static int PRESENTATION_PAYPHONE = PhoneConstants.PRESENTATION_PAYPHONE;
 
+    private CallDetails mCallDetails;
+    private CallDetails mCallModifyDetails;
+
     // Unique identifier for the call
     private int mCallId;
 
@@ -202,9 +205,14 @@ public final class Call implements Parcelable {
     // Whether the call is held remotely
     private boolean mHeldRemotely;
 
+    // Whether the dialing state is waiting for the busy remote side
+    private boolean mDialingIsWaiting;
+
     public Call(int callId) {
         mCallId = callId;
         mIdentification = new CallIdentification(mCallId);
+        mCallDetails = new CallDetails();
+        mCallModifyDetails = new CallDetails();
     }
 
     public Call(Call call) {
@@ -220,6 +228,9 @@ public final class Call implements Parcelable {
         mGatewayPackage = call.mGatewayPackage;
         mForwarded = call.mForwarded;
         mHeldRemotely = call.mHeldRemotely;
+        mDialingIsWaiting = call.mDialingIsWaiting;
+        mCallDetails = new CallDetails();
+        mCallModifyDetails = new CallDetails();
     }
 
     public int getCallId() {
@@ -322,6 +333,10 @@ public final class Call implements Parcelable {
         return mHeldRemotely;
     }
 
+    public boolean isDialingWaiting() {
+        return mDialingIsWaiting;
+    }
+
     public void removeChildId(int id) {
         mChildCallIds.remove(id);
     }
@@ -366,6 +381,26 @@ public final class Call implements Parcelable {
         mHeldRemotely = heldRemotely;
     }
 
+    public void setDialingIsWaiting(boolean dialingIsWaiting) {
+        mDialingIsWaiting = dialingIsWaiting;
+    }
+
+    public CallDetails getCallDetails() {
+        return mCallDetails;
+    }
+
+    public void setCallDetails(CallDetails calldetails) {
+        mCallDetails = calldetails;
+    }
+
+    public CallDetails getCallModifyDetails() {
+        return mCallModifyDetails;
+    }
+
+    public void setCallModifyDetails(CallDetails calldetails) {
+        mCallModifyDetails = calldetails;
+    }
+
     /**
      * Parcelable implementation
      */
@@ -384,6 +419,9 @@ public final class Call implements Parcelable {
         dest.writeParcelable(mIdentification, 0);
         dest.writeInt(mForwarded ? 1 : 0);
         dest.writeInt(mHeldRemotely ? 1 : 0);
+        dest.writeInt(mDialingIsWaiting ? 1 : 0);
+        dest.writeParcelable(mCallDetails, 1);
+        dest.writeParcelable(mCallModifyDetails, 2);
     }
 
     /**
@@ -402,6 +440,9 @@ public final class Call implements Parcelable {
         mIdentification = in.readParcelable(CallIdentification.class.getClassLoader());
         mForwarded = in.readInt() != 0;
         mHeldRemotely = in.readInt() != 0;
+        mDialingIsWaiting = in.readInt() != 0;
+        mCallDetails = in.readParcelable(CallDetails.class.getClassLoader());
+        mCallModifyDetails = in.readParcelable(CallDetails.class.getClassLoader());
     }
 
     @Override
@@ -441,6 +482,9 @@ public final class Call implements Parcelable {
                 .add("mIdentification", mIdentification)
                 .add("mForwarded", mForwarded)
                 .add("mHeldRemotely", mHeldRemotely)
+                .add("mDialingIsWaiting", mDialingIsWaiting)
+                .add("mCallDetails", mCallDetails)
+                .add("mCallModifyDetails", mCallModifyDetails)
                 .toString();
     }
 }
